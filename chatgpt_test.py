@@ -32,17 +32,18 @@ def record_mp3():
     file = "input_data/user_input.wav"
     record = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     finish_token = input("You have 30s to speak(press enter to finish recording) :")
-    if finish_token == "":
-        sd.stop
-        #record = record / record.max() * np.iinfo(np.int16).max
-        #record = np.dtype(np.int16)
-        write(file, fs, record)
-        s_to_text = sound_to_text(file)
-        return s_to_text
-    elif finish_token == "exit":
+    if finish_token == "exit":
         pygame.mixer.music.stop()
         sd.stop
+        print("-----PROGRAM FINISH-----")
         exit()
+    #  if finish_token:
+    sd.stop
+    #record = record / record.max() * np.iinfo(np.int16).max
+    #record = np.dtype(np.int16)
+    write(file, fs, record)
+    s_to_text = sound_to_text(file)
+    return s_to_text
     
 
 # token数を減らすためにユーザ入力を英語に、gpt出力を日本語に
@@ -94,6 +95,7 @@ def main():
         #dummy()
     
 def setup():
+    print("-----PROGRAM START-----")
     openai.api_key = os.getenv("OPENAI_API_KEY")
     sd.default.device = [0,1]
 
