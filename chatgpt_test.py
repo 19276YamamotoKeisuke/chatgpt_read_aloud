@@ -1,10 +1,9 @@
 import openai
 import os
-from datetime import datetime as dt
 from gtts import gTTS
 import sounddevice as sd
 import soundfile as sf
-import numpy as np
+from scipy.io.wavfile import write
 import pygame
 #from transformers import pipeline
 
@@ -22,18 +21,26 @@ def sound_to_text(input_mpfile):
     audio_file= open(input_mpfile, "rb")
     transcript = openai.Audio.transcribe("whisper-1", audio_file)
     # print(transcript["text"])
+    #if len(transcript) <= 2:
+    #    return ""
     return transcript["text"]
 
+# ユーザからの入力を録音
 def record_mp3():
     fs = 48000
     duration = 30
     file = "input_data/user_input.wav"
-    record = sd.rec(duration * fs, samplerate=fs, channels=1)
-    finish_token = input("Speak for the me(If you finish recording, press enter,) :")
+    record = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+    finish_token = input("You have 30s to speak(press enter to finish recording) :")
     if finish_token == "":
         sd.stop
-        sf.write(file, fs, record)
+        #record = record / record.max() * np.iinfo(np.int16).max
+        #record = np.dtype(np.int16)
+        write(file, fs, record)
+        s_to_text = sound_to_text(file)
+        return s_to_text
     elif finish_token == "exit":
+        pygame.mixer.music.stop()
         sd.stop
         exit()
     
@@ -78,17 +85,17 @@ def main():
     # 会話内容を記憶するための配列　未実装
     history = []
     while True:
-        inputText = input("Enter your text(If you exit this program, please write exit.):")
-        if inputText == "exit":
-            pygame.mixer.music.stop()
-            break
+        inputText = record_mp3()
+        # 音声がうまく取得できなかった時にトークンを節約する(うまく動作していないので現時点で意味なし？)
+        if len(inputText) < 4:
+            print("I can't hear your voice, run this program again.")
         res_file = chatgpt_com(inputText)
         play_mp3(res_file)
         #dummy()
     
 def setup():
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    sd.default.device = 2
+    sd.default.device = [0,1]
 
 
 if __name__ == "__main__":
@@ -97,5 +104,6 @@ if __name__ == "__main__":
     #en_to_ja_translator = pipeline("translation", model="staka/fugumt-en-ja")
     #ja_to_en_translator = pipeline("translation", model="staka/fugumt-ja-en")
     setup()
+    print("If you want to finish this program, entering exit")
     main()
     # 個人のgoogleアカウントならいけた
