@@ -109,7 +109,6 @@ def setup():
 
 
 if __name__ == "__main__":
-    # apikeyを設定
     # translator設定 一時凍結
     #en_to_ja_translator = pipeline("translation", model="staka/fugumt-en-ja")
     #ja_to_en_translator = pipeline("translation", model="staka/fugumt-ja-en")
