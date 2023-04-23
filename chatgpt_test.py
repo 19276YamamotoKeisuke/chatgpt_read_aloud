@@ -13,7 +13,9 @@ def play_mp3(output_mpfile):
     pygame.mixer.music.set_volume(1.0)
     print(output_mpfile)
     pygame.mixer.music.load(output_mpfile)
+    # end_sec = .get_length()
     pygame.mixer.music.play(1)
+    # pygame.mixer.music.wait()
     # time.sleep(15)
 
 # 入力した音源を文字起こし　whisperAPI
